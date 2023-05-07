@@ -8,6 +8,9 @@ from tqdm import tqdm
 from src.helpers import after_subplot
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+train_loss_history = list()
+val_loss_history = list()
+
 def train_one_epoch(train_dataloader, model, optimizer, loss):
     """
     Performs one train_one_epoch epoch
@@ -22,6 +25,9 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
     model.train()
     
     train_loss = 0.0
+    
+    train_correct = 0
+    num_train_samples = len(train_dataloader.dataset)
 
     for batch_idx, (data, target) in tqdm(
         enumerate(train_dataloader),
@@ -53,6 +59,19 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
         train_loss = train_loss + (
             (1 / (batch_idx + 1)) * (loss_value.data.item() - train_loss)
         )
+        
+        # Get class predictions from the outputs
+        _, preds = torch.max(output.data, 1)
+        
+        # Update the number of correct predictions from the epoch
+        train_correct += (preds == target).sum().item()
+        
+    print(
+        'Training Accuracy: {:.2f}%'.format(
+            100 * train_correct/num_train_samples,
+        )
+    )
+        
 
     return train_loss
 
@@ -62,6 +81,9 @@ def valid_one_epoch(valid_dataloader, model, loss):
     Validate at the end of one epoch
     """
 
+    num_val_samples = len(valid_dataloader.dataset)
+    val_correct = 0
+    
     with torch.no_grad():
 
         # set the model to evaluation mode
@@ -92,6 +114,16 @@ def valid_one_epoch(valid_dataloader, model, loss):
             valid_loss = valid_loss + (
                 (1 / (batch_idx + 1)) * (loss_value.data.item() - valid_loss)
             )
+            
+            _, preds = torch.max(output.data, 1)
+            
+            val_correct += (preds == target).sum().item()
+            
+        print(
+            'Validation Accuracy: {:.2f}%'.format(
+                100 * val_correct/num_val_samples,
+            )
+        )            
 
     return valid_loss
 
@@ -111,7 +143,7 @@ def optimize(data_loaders, model, optimizer, loss, n_epochs, save_path, interact
     # plateau
     # HINT: look here: 
     # https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
-    scheduler  = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True) # YOUR CODE HERE
+    scheduler  = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True, threshold=0.01) # YOUR CODE HERE
 
     for epoch in range(1, n_epochs + 1):
 
@@ -123,7 +155,7 @@ def optimize(data_loaders, model, optimizer, loss, n_epochs, save_path, interact
 
         # print training/validation statistics
         print(
-            "Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}".format(
+            "Epoch: {} \tTraining Loss2: {:.6f} \tValidation Loss2: {:.6f}".format(
                 epoch, train_loss, valid_loss
             )
         )
@@ -159,6 +191,8 @@ def optimize(data_loaders, model, optimizer, loss, n_epochs, save_path, interact
 
             liveloss.update(logs)
             liveloss.send()
+            
+    return valid_loss_min
 
 
 def one_epoch_test(test_dataloader, model, loss):

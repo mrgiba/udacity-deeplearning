@@ -50,9 +50,11 @@ def get_data_loaders(
             # YOUR CODE HERE
             [
                 transforms.Resize(256),
-                # transforms.CenterCrop(224),
-                transforms.RandomCrop(224),
-                transforms.RandAugment(),
+                transforms.RandomCrop(224),                
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.RandAugment(
+                    interpolation=transforms.InterpolationMode.BILINEAR
+                ),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=mean, std=std)
             ]
