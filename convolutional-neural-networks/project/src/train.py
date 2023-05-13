@@ -27,7 +27,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
     train_loss = 0.0
     
     train_correct = 0
-    num_train_samples = len(train_dataloader.dataset)
+    train_total = 0
 
     for batch_idx, (data, target) in tqdm(
         enumerate(train_dataloader),
@@ -61,14 +61,23 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
         )
         
         # Get class predictions from the outputs
-        _, preds = torch.max(output.data, 1)
+        # _, preds = torch.max(output.data, 1)
+
+        # Update the number of correct predictions from the epoch
+        # train_correct += (preds == target).sum().item()
+        
+        # convert logits to predicted class
+        # HINT: the predicted class is the index of the max of the logits
+        pred  = torch.argmax(output, dim=1) # YOUR CODE HERE
         
         # Update the number of correct predictions from the epoch
-        train_correct += (preds == target).sum().item()
+        train_correct += torch.sum(torch.squeeze(pred.eq(target.data.view_as(pred))).cpu())
+        
+        train_total += data.size(0)
         
     print(
         'Training Accuracy: {:.2f}%'.format(
-            100 * train_correct/num_train_samples,
+            100 * train_correct/train_total,
         )
     )
         
@@ -79,10 +88,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
 def valid_one_epoch(valid_dataloader, model, loss):
     """
     Validate at the end of one epoch
-    """
-
-    num_val_samples = len(valid_dataloader.dataset)
-    val_correct = 0
+    """    
     
     with torch.no_grad():
 
@@ -94,6 +100,9 @@ def valid_one_epoch(valid_dataloader, model, loss):
             model.cuda()
 
         valid_loss = 0.0
+        val_correct = 0
+        val_total = 0
+        
         for batch_idx, (data, target) in tqdm(
             enumerate(valid_dataloader),
             desc="Validating",
@@ -115,13 +124,18 @@ def valid_one_epoch(valid_dataloader, model, loss):
                 (1 / (batch_idx + 1)) * (loss_value.data.item() - valid_loss)
             )
             
-            _, preds = torch.max(output.data, 1)
-            
-            val_correct += (preds == target).sum().item()
+            # convert logits to predicted class
+            # HINT: the predicted class is the index of the max of the logits
+            pred  = torch.argmax(output, dim=1) # YOUR CODE HERE
+
+            # Update the number of correct predictions from the epoch
+            val_correct += torch.sum(torch.squeeze(pred.eq(target.data.view_as(pred))).cpu())
+
+            val_total += data.size(0)
             
         print(
             'Validation Accuracy: {:.2f}%'.format(
-                100 * val_correct/num_val_samples,
+                100 * val_correct/val_total,
             )
         )            
 
@@ -155,7 +169,7 @@ def optimize(data_loaders, model, optimizer, loss, n_epochs, save_path, interact
 
         # print training/validation statistics
         print(
-            "Epoch: {} \tTraining Loss2: {:.6f} \tValidation Loss2: {:.6f}".format(
+            "Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}".format(
                 epoch, train_loss, valid_loss
             )
         )

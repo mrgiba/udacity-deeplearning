@@ -17,69 +17,47 @@ class MyModel(nn.Module):
         #  Input size: 224x224        
         #  Feature map channel output size = (input_size - kernel_size + 2*padding)  + 1
 
-        # Alexnet - https://github.com/pytorch/vision/blob/main/torchvision/models/alexnet.py        
-         # VGG-16 - https://gist.github.com/KushajveerSingh/7773052dfb6d8adedc53d0544dedaf60    
-         #  https://towardsdatascience.com/what-your-validation-loss-is-lower-than-your-training-loss-this-is-why-5e92e0b1747e
         self.model = nn.Sequential(
             nn.Conv2d(3, 64, 3, padding=1),       # output size: (224 - 3 + 2*1) + 1 = 224            
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),                            # output size: (224/2) = 112
-            
+            nn.MaxPool2d(2, 2),                            # output size: (224/2) = 112            
             # nn.Dropout2d(p=dropout),
 
             nn.Conv2d(64, 128, 3, padding=1),     # output size: (112 - 3 + 2*1) + 1 = 112           
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=1),     # output size: (112 - 3 + 2*1) + 1 = 112           
-            nn.BatchNorm2d(128),
-            nn.ReLU(),            
-            nn.MaxPool2d(2, 2),                            # output size: (112/2) = 56
-
-            
+            nn.MaxPool2d(2, 2),                            # output size: (112/2) = 56            
             # nn.Dropout2d(p=dropout),
 
             nn.Conv2d(128, 192, 3, padding=1),    # output size: (56 - 3 + 2*1) + 1 = 56
             nn.BatchNorm2d(192),            
             nn.ReLU(),
-            nn.Conv2d(192, 192, 3, padding=1),     # output size: (56 - 3 + 2*1) + 1 = 56           
-            nn.BatchNorm2d(192),            
-            nn.ReLU(),
             nn.MaxPool2d(2, 2),                           # output size: (56/2) = 28
-            
-            
             # nn.Dropout2d(p=dropout),
             
             nn.Conv2d(192, 256, 3, padding=1),   # output size: (28 - 3 + 2 *1) + 1 = 28
             nn.BatchNorm2d(256),   
             nn.ReLU(),
-            nn.Conv2d(256, 256, 3, padding=1),   # output size: (28 - 3 + 2 *1) + 1 = 28         
-            nn.BatchNorm2d(256),   
-            nn.ReLU(),            
             nn.MaxPool2d(2, 2),                            # output size: 14x14
             # nn.Dropout2d(dropout),
 
             nn.Conv2d(256, 384, 3, padding=1),   # output size: (14 - 3 + 2 *1) + 1 = 14
             nn.BatchNorm2d(384),   
             nn.ReLU(),
-            nn.Conv2d(384, 384, 3, padding=1),   # output size: (14 - 3 + 2 *1) + 1 = 14
-            nn.BatchNorm2d(384),   
-            nn.ReLU(),            
             nn.MaxPool2d(2, 2),                            # output size: 7x7
 
             # Flatten feature maps
             nn.Flatten(),            
-            nn.Linear(7 * 7 * 384, 4096),             
-            nn.Dropout(p=dropout),
-            nn.BatchNorm2d(4096), 
+            nn.Linear(7 * 7 * 384, 4096),
+            # Batch normalization not called to avoid 'Expected more than 1 value per channel when training, got input size torch.Size([1, 4096])' errors on small batch sizes
+            # nn.BatchNorm1d(4096), 
+            nn.Dropout(p=dropout),            
             nn.ReLU(),
                                     
             nn.Linear(4096, 4096),
-            nn.Dropout(p=dropout),
-            nn.BatchNorm2d(4096),
+            # nn.BatchNorm1d(4096),
+            nn.Dropout(p=dropout),            
             nn.ReLU(),
                         
             nn.Linear(4096, num_classes)            
