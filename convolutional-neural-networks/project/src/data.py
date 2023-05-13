@@ -8,19 +8,6 @@ import multiprocessing
 from .helpers import compute_mean_and_std, get_data_location
 import matplotlib.pyplot as plt
 
-# def custom_collate_fn(batch):
-#     data = [item[0] for item in batch]  # extract the data from each item in the batch
-#     target = [item[1] for item in batch]  # extract the target from each item in the batch
-#     # stack the data and target tensors
-#     data = torch.stack(data, dim=0)  
-#     target = torch.tensor(target)
-#     return data, target
-
-# def crop_and_stack(x):
-#     crops = transforms.FiveCrop(224)(x)
-#     return torch.stack([transforms.ToTensor()(crop) for crop in crops])
-
-
 def get_data_loaders(
     batch_size: int = 32, valid_size: float = 0.2, num_workers: int = -1, limit: int = -1
 ):
@@ -137,9 +124,7 @@ def get_data_loaders(
         train_data,
         batch_size=batch_size,
         sampler=train_sampler,
-        num_workers=num_workers,
-        # collate_fn=collate_4D_3D_tensor
-        # collate_fn=custom_collate_fn
+        num_workers=num_workers
     )
     data_loaders["valid"] = torch.utils.data.DataLoader(
         # YOUR CODE HERE

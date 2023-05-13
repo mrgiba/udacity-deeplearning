@@ -15,9 +15,6 @@ def get_loss():
     if torch.cuda.is_available():
         loss = loss.cuda()
         
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # loss = loss.to(device)
-    
     return loss
 
 

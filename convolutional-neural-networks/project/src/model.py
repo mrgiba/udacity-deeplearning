@@ -22,25 +22,21 @@ class MyModel(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),                            # output size: (224/2) = 112            
-            # nn.Dropout2d(p=dropout),
 
             nn.Conv2d(64, 128, 3, padding=1),     # output size: (112 - 3 + 2*1) + 1 = 112           
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),                            # output size: (112/2) = 56            
-            # nn.Dropout2d(p=dropout),
 
             nn.Conv2d(128, 192, 3, padding=1),    # output size: (56 - 3 + 2*1) + 1 = 56
             nn.BatchNorm2d(192),            
             nn.ReLU(),
             nn.MaxPool2d(2, 2),                           # output size: (56/2) = 28
-            # nn.Dropout2d(p=dropout),
             
             nn.Conv2d(192, 256, 3, padding=1),   # output size: (28 - 3 + 2 *1) + 1 = 28
             nn.BatchNorm2d(256),   
             nn.ReLU(),
             nn.MaxPool2d(2, 2),                            # output size: 14x14
-            # nn.Dropout2d(dropout),
 
             nn.Conv2d(256, 384, 3, padding=1),   # output size: (14 - 3 + 2 *1) + 1 = 14
             nn.BatchNorm2d(384),   
