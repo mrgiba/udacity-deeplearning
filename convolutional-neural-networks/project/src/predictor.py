@@ -30,13 +30,13 @@ class Predictor(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         with torch.no_grad():
             # 1. apply transforms
-            x  = # YOUR CODE HERE
+            x  = self.transforms(x) # YOUR CODE HERE 
             # 2. get the logits
-            x  = # YOUR CODE HERE
+            x  = self.model(x)# YOUR CODE HERE
             # 3. apply softmax
             #    HINT: remmeber to apply softmax across dim=1
-            x  = # YOUR CODE HERE
-
+            x  =  F.softmax(x, dim=1) # YOUR CODE HERE# YOUR CODE HERE
+            
             return x
 
 
@@ -48,12 +48,12 @@ def predictor_test(test_dataloader, model_reloaded):
 
     folder = get_data_location()
     test_data = datasets.ImageFolder(os.path.join(folder, "test"), transform=T.ToTensor())
-
+            
     pred = []
     truth = []
     for x in tqdm(test_data, total=len(test_dataloader.dataset), leave=True, ncols=80):
         softmax = model_reloaded(x[0].unsqueeze(dim=0))
-
+        
         idx = softmax.squeeze().argmax()
 
         pred.append(int(x[1]))
