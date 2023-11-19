@@ -2,3 +2,4 @@ data
 .data
 .pt
 checkpoints
+train_output*.txt
