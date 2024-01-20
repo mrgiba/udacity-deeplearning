@@ -1,2 +1,3 @@
 .ipynb_checkpoints
-processed-celeba-small.zip
+processed-celeba-small*
+losses/
